@@ -20,7 +20,7 @@ void help() {
     cout << "\\q \t\t - exit\n";
     cout << "history \t - history\n";
     cout << "\\e <var> \t - show environment variable\n";
-    cout << "\\debug <text> \t - print text\n";
+    cout << ECHO << " <text> \t - print text\n";
     cout << "Ctrl+D \t\t - exit\n";
 }
 
@@ -154,5 +154,6 @@ int main() {
     cout << ":(\n";
     return 0;
 }
+
 
 
