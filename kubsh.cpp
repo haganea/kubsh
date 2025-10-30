@@ -14,13 +14,13 @@ string history_path;
 
 void help() {
     cout << "Commands: " << "\n";
-    cout << "\\help \t\t - help\n";
+    cout << "help \t\t - help\n";
     cout << "\\p \t\t - print text and exit\n";
     cout << "\\pw \t\t - print text until Ctrl+D not pressed\n";
     cout << "\\q \t\t - exit\n";
-    cout << "\\h \t\t - history\n";
-    cout << "\\e <var> \t\t - show environment variable\n";
-    cout << "\\debug <text> \t\t - print text\n";
+    cout << "history \t - history\n";
+    cout << "\\e <var> \t - show environment variable\n";
+    cout << "\\debug <text> \t - print text\n";
     cout << "Ctrl+D \t\t - exit\n";
 }
 
@@ -100,7 +100,7 @@ void env(const string& var_name) {
 // Обработка команды и выбор функции
 void process_command(const string& input) {
     if (input.empty()) return;
-    if (input == "\\help") {
+    if (input == "help") {
         help();
         return;
     }
@@ -119,7 +119,7 @@ void process_command(const string& input) {
         return;
     }
     if (input == "\\q") return; // 3.
-    if (input == "\\h") { // 4.
+    if (input == "history") { // 4.
         history();
         return;
     }
@@ -154,4 +154,5 @@ int main() {
     cout << ":(\n";
     return 0;
 }
+
 
