@@ -2,8 +2,6 @@
 #include <string>
 #include <fstream>
 #include <cstdlib>
-#include <chrono>
-#include <thread>
 #include <algorithm>
 #include <cctype>
 using namespace std;
@@ -16,7 +14,6 @@ void help() {
     cout << "Commands: " << "\n";
     cout << "help \t\t - help\n";
     cout << "\\p \t\t - print text and exit\n";
-    cout << "\\pw \t\t - print text until Ctrl+D not pressed\n";
     cout << "\\q \t\t - exit\n";
     cout << "history \t - history\n";
     cout << "\\e <var> \t - show environment variable\n";
@@ -27,17 +24,6 @@ void help() {
 // 1. Печатает введённую строку и выходит (выход в main)
 void print(const string& args) {
     cout << args << "\n";
-}
-
-// 2. Печатает введённую строку в цикле, пока не Ctrl+D
-// затем выход из терминала
-void print_while(const string& args) {
-    string input;
-    while (true) {
-        cout << args << "\n";
-        this_thread::sleep_for(chrono::seconds(2));
-        if (!getline(cin, input)) break;
-    }
 }
 
 // 4. История введённых команд и её сохранение в ~./kubsh_history
@@ -78,6 +64,7 @@ void env(const string& var_name) {
     if (clean_var[0] == '$')
         clean_var = clean_var.substr(1);
     clean_var.erase(remove_if(clean_var.begin(), clean_var.end(), ::isspace), clean_var.end());
+    clean_var.erase(remove(clean_var.begin(), clean_var.end(), ':'), clean_var.end());
     const char* value = getenv(clean_var.c_str());
     if (value != nullptr) {
         string env_value(value);
@@ -111,13 +98,6 @@ void process_command(const string& input) {
         print(args);
         return;
     }
-    if (input.find("\\pw") == 0) { // 2.
-        string args = input.substr(4);
-        size_t pos = args.find_first_not_of(" ");
-        if (pos != string::npos) args = args.substr(pos);
-        print_while(args);
-        return;
-    }
     if (input == "\\q") return; // 3.
     if (input == "history") { // 4.
         history();
@@ -143,6 +123,7 @@ void process_command(const string& input) {
 int main() {
     history_path = get_history_path();
     string input;
+    // 2.
     while (true) {
         cout << "kubsh > ";
         if (!getline(cin, input)) break; // Ctrl+D
