@@ -24,13 +24,13 @@ void help() {
     cout << "Ctrl+D \t\t - exit\n";
 }
 
-// 1. Ïå÷àòàåò ââåä¸ííóş ñòğîêó è âûõîäèò (âûõîä â main)
+// 1. ĞŸĞµÑ‡Ğ°Ñ‚Ğ°ĞµÑ‚ Ğ²Ğ²ĞµĞ´Ñ‘Ğ½Ğ½ÑƒÑ ÑÑ‚Ñ€Ğ¾ĞºÑƒ Ğ¸ Ğ²Ñ‹Ñ…Ğ¾Ğ´Ğ¸Ñ‚ (Ğ²Ñ‹Ñ…Ğ¾Ğ´ Ğ² main)
 void print(const string& args) {
     cout << args << "\n";
 }
 
-// 2. Ïå÷àòàåò ââåä¸ííóş ñòğîêó â öèêëå, ïîêà íå Ctrl+D
-// çàòåì âûõîä èç òåğìèíàëà
+// 2. ĞŸĞµÑ‡Ğ°Ñ‚Ğ°ĞµÑ‚ Ğ²Ğ²ĞµĞ´Ñ‘Ğ½Ğ½ÑƒÑ ÑÑ‚Ñ€Ğ¾ĞºÑƒ Ğ² Ñ†Ğ¸ĞºĞ»Ğµ, Ğ¿Ğ¾ĞºĞ° Ğ½Ğµ Ctrl+D
+// Ğ·Ğ°Ñ‚ĞµĞ¼ Ğ²Ñ‹Ñ…Ğ¾Ğ´ Ğ¸Ğ· Ñ‚ĞµÑ€Ğ¼Ğ¸Ğ½Ğ°Ğ»Ğ°
 void print_while(const string& args) {
     string input;
     while (true) {
@@ -40,7 +40,7 @@ void print_while(const string& args) {
     }
 }
 
-// 4. Èñòîğèÿ ââåä¸ííûõ êîìàíä è å¸ ñîõğàíåíèå â ~./kubsh_history
+// 4. Ğ˜ÑÑ‚Ğ¾Ñ€Ğ¸Ñ Ğ²Ğ²ĞµĞ´Ñ‘Ğ½Ğ½Ñ‹Ñ… ĞºĞ¾Ğ¼Ğ°Ğ½Ğ´ Ğ¸ ĞµÑ‘ ÑĞ¾Ñ…Ñ€Ğ°Ğ½ĞµĞ½Ğ¸Ğµ Ğ² ~./kubsh_history
 string get_history_path() {
 	const char* home = getenv("HOME");
 	return string(home) + "/" + HISTORY_FILE;
@@ -67,12 +67,12 @@ void history() {
     else cerr << "File is not opened\n";
 }
 
-// 5. Êîìàíäà echo (debug)
+// 5. ĞšĞ¾Ğ¼Ğ°Ğ½Ğ´Ğ° echo (debug)
 void echo(const string& args) {
     cout << args << "\n";
 }
 
-// 7. Âûâîä ïåğåìåííîé îêğóæåíèÿ
+// 7. Ğ’Ñ‹Ğ²Ğ¾Ğ´ Ğ¿ĞµÑ€ĞµĞ¼ĞµĞ½Ğ½Ğ¾Ğ¹ Ğ¾ĞºÑ€ÑƒĞ¶ĞµĞ½Ğ¸Ñ
 void env(const string& var_name) {
     string clean_var = var_name;
     if (clean_var[0] == '$')
@@ -97,7 +97,7 @@ void env(const string& var_name) {
     else cout << clean_var << "not found" << "\n";
 }
 
-// Îáğàáîòêà êîìàíäû è âûáîğ ôóíêöèè
+// ĞĞ±Ñ€Ğ°Ğ±Ğ¾Ñ‚ĞºĞ° ĞºĞ¾Ğ¼Ğ°Ğ½Ğ´Ñ‹ Ğ¸ Ğ²Ñ‹Ğ±Ğ¾Ñ€ Ñ„ÑƒĞ½ĞºÑ†Ğ¸Ğ¸
 void process_command(const string& input) {
     if (input.empty()) return;
     if (input == "\\help") {
@@ -143,8 +143,6 @@ void process_command(const string& input) {
 int main() {
     history_path = get_history_path();
     string input;
-    cout << unitbuf;
-    cerr << unitbuf;
     while (true) {
         cout << "kubsh > ";
         if (!getline(cin, input)) break; // Ctrl+D
