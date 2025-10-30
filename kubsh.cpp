@@ -119,7 +119,7 @@ void process_command(const string& input) {
         return;
     }
     if (input == "\\q") return; // 3.
-    if (input.find("\\h")) { // 4.
+    if (input == "\\h") { // 4.
         history();
         return;
     }
@@ -154,3 +154,4 @@ int main() {
     cout << ":(\n";
     return 0;
 }
+
