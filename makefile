@@ -45,31 +45,14 @@ execute: $(OUTPUT_NAME)
 run: $(TARGET)
 	./$(TARGET)
 
-prepare-deb: $(OUTPUT_NAME)
-	@mkdir -p $(DEB_FOLDER)/DEBIAN
-	@mkdir -p $(DEB_FOLDER)/usr/local/bin
-	@# Удаляем старый файл если он существует и защищен
-	@-rm -f $(DEB_FOLDER)/usr/local/bin/$(OUTPUT_NAME) 2>/dev/null || true
-	@cp $(OUTPUT_NAME) $(DEB_FOLDER)/usr/local/bin/
-	@chmod +x $(DEB_FOLDER)/usr/local/bin/$(OUTPUT_NAME)
-# Подготовка структуры для deb-пакета
 prepare-deb: $(TARGET)
 	@echo "Подготовка структуры для deb-пакета..."
+	@-rm -rf $(DEB_DIR) 2>/dev/null || true  # Полностью очищаем старую структуру
 	@mkdir -p $(DEB_DIR)/DEBIAN
 	@mkdir -p $(DEB_DIR)/usr/local/bin
-	@# Удаляем старый файл если он существует и защищен
-	@-rm -f $(DEB_DIR)/usr/local/bin/$(TARGET) 2>/dev/null || true
 	@cp $(TARGET) $(DEB_DIR)/usr/local/bin/
 	@chmod +x $(DEB_DIR)/usr/local/bin/$(TARGET)
-
-	@echo "Package: $(APP_PACKAGE)" > $(DEB_FOLDER)/DEBIAN/control
-	@echo "Version: $(APP_VERSION)" >> $(DEB_FOLDER)/DEBIAN/control
-	@echo "Section: utilities" >> $(DEB_FOLDER)/DEBIAN/control
-	@echo "Priority: optional" >> $(DEB_FOLDER)/DEBIAN/control
-	@echo "Architecture: amd64" >> $(DEB_FOLDER)/DEBIAN/control
-	@echo "Maintainer: Developer <dev@example.com>" >> $(DEB_FOLDER)/DEBIAN/control
-	@echo "Description: Custom shell implementation" >> $(DEB_FOLDER)/DEBIAN/control
-	@echo " Educational shell project with VFS support." >> $(DEB_FOLDER)/DEBIAN/control
+	
 	@echo "Создание control файла..."
 	@echo "Package: $(PACKAGE_NAME)" > $(DEB_DIR)/DEBIAN/control
 	@echo "Version: $(VERSION)" >> $(DEB_DIR)/DEBIAN/control
@@ -122,7 +105,6 @@ cleanup:
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET) *.deb $(OBJS)
 
-# ДОБАВЛЕНО: Очистка структуры DEB пакета
 clean-deb:
 	@echo "Очистка структуры DEB пакета..."
 	@-rm -rf $(DEB_FOLDER) $(DEB_DIR) 2>/dev/null || true
