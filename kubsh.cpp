@@ -68,7 +68,11 @@ void history() {
 
 // 5. Команда echo (debug)
 void echo(const string& args) {
-    cout << args << "\n";
+    string clean_args = args; // без кавычек
+    if (!clean_args.empty() && clean_args.front() == '\'' && clean_args.back() == '\'') {
+        clean_args = clean_args.substr(1, clean_args.length() - 2);
+    }
+    cout << clean_args << "\n";
 }
 
 // 7. Вывод переменной окружения
@@ -130,7 +134,7 @@ void execute_external_command(const string& cmd_line) {
         }
         args.push_back(nullptr); // конец массива
         execvp(args[0], args.data());
-        cout << "command not found: " << args[0] << "\n"; // если execvp не удался 
+        cout << args[0] << ": command not found\n"; // 6; если execvp не удался 
         exit(1);  // завершаем дочерний процесс
     } 
     else if (pid > 0) { //  если родительский процесс
@@ -321,6 +325,7 @@ int main() {
     }
     return 0;
 }
+
 
 
 
