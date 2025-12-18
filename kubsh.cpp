@@ -6,10 +6,12 @@
 #include <cctype>
 #include <vector>
 
-// Для 8 задания
+// 8.
 #include <sys/wait.h> // waitpid
 #include <unistd.h> // fork, execvp, getpid
 #include <sstream> // для разбиения строки на части
+
+#include <csignal>  // 9.
 
 using namespace std;
 
@@ -120,6 +122,14 @@ void execute_external_command(const string& cmd_line) {
     }
 }
 
+// 9. Обработка сигнала SIGHUP
+void handle_sighup(int sig_num) {
+    if (sig_num == SIGHUP) {
+        cout << "Configuration reloaded\n";
+        cout << "$ ";
+    }
+}
+
 // Обработка команды и выбор функции
 void process_command(const string& input) {
     if (input.empty()) return;
@@ -158,18 +168,23 @@ void process_command(const string& input) {
 }
 
 int main() {
+    cout << unitbuf;
+    cerr << unitbuf;
     history_path = get_history_path();
+    signal(SIGHUP, handle_sighup);
+    cerr << "$ ";
     string input;
-    // 2.
     while (true) {
-        cout << "kubsh > ";
         if (!getline(cin, input)) break; // Ctrl+D
-        if (input.empty()) continue;
+        if (input.empty()) {
+            cerr << "$ ";
+            continue;
+        }
         add_to_history(input);
         process_command(input);
         if (input.find("\\p") == 0 || input == "\\q") break;
+        cerr << "$ ";
     }
-    cout << ":(\n";
     return 0;
 }
 
