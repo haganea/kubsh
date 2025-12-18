@@ -48,6 +48,8 @@ run: $(TARGET)
 prepare-deb: $(OUTPUT_NAME)
 	@mkdir -p $(DEB_FOLDER)/DEBIAN
 	@mkdir -p $(DEB_FOLDER)/usr/local/bin
+	@# Удаляем старый файл если он существует и защищен
+	@-rm -f $(DEB_FOLDER)/usr/local/bin/$(OUTPUT_NAME) 2>/dev/null || true
 	@cp $(OUTPUT_NAME) $(DEB_FOLDER)/usr/local/bin/
 	@chmod +x $(DEB_FOLDER)/usr/local/bin/$(OUTPUT_NAME)
 # Подготовка структуры для deb-пакета
@@ -55,6 +57,8 @@ prepare-deb: $(TARGET)
 	@echo "Подготовка структуры для deb-пакета..."
 	@mkdir -p $(DEB_DIR)/DEBIAN
 	@mkdir -p $(DEB_DIR)/usr/local/bin
+	@# Удаляем старый файл если он существует и защищен
+	@-rm -f $(DEB_DIR)/usr/local/bin/$(TARGET) 2>/dev/null || true
 	@cp $(TARGET) $(DEB_DIR)/usr/local/bin/
 	@chmod +x $(DEB_DIR)/usr/local/bin/$(TARGET)
 
@@ -118,6 +122,12 @@ cleanup:
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET) *.deb $(OBJS)
 
+# ДОБАВЛЕНО: Очистка структуры DEB пакета
+clean-deb:
+	@echo "Очистка структуры DEB пакета..."
+	@-rm -rf $(DEB_FOLDER) $(DEB_DIR) 2>/dev/null || true
+	@echo "Структура DEB пакета очищена"
+
 show-help:
 	@echo "Available commands:"
 	@echo "  make build        - compile application"
@@ -125,6 +135,7 @@ show-help:
 	@echo "  make install-app  - install package"
 	@echo "  make remove-app   - uninstall package"
 	@echo "  make cleanup      - clean project"
+	@echo "  make clean-deb    - clean deb structure (NEW)"
 	@echo "  make execute      - run shell"
 	@echo "  make container-test - test in Docker"
 	@echo "  make show-help    - display this help"
@@ -136,9 +147,10 @@ help:
 	@echo "  make install  - установить пакет"
 	@echo "  make uninstall - удалить пакет"
 	@echo "  make clean    - очистить проект"
+	@echo "  make clean-deb - очистить структуру DEB (НОВОЕ)"
 	@echo "  make run      - запустить шелл"
 	@echo "  make test     - собрать и запустить тест в Docker"
 	@echo "  make help     - показать эту справку"
 
 .PHONY: build deb-package install-app remove-app cleanup show-help prepare-deb execute container-test
-.PHONY: all deb install uninstall clean help prepare-deb run test
+.PHONY: all deb install uninstall clean help prepare-deb run test clean-deb
