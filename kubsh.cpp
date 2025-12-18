@@ -13,6 +13,7 @@
 #include <csignal> // 9.
 #include <cstdint> // 10.
 #include <cstring> // 10.
+#include "vfs.hpp" // 11.
 
 using namespace std;
 
@@ -300,6 +301,7 @@ void process_command(const string& input) {
 }
 
 int main() {
+    init_virtual_fs();
     cout << unitbuf;
     cerr << unitbuf;
     history_path = get_history_path();
