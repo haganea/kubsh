@@ -1,61 +1,48 @@
-COMPILER = g++
-COMPILE_FLAGS = -std=c++20 -Wall -Wextra
-FUSE_CONFIG = -I/usr/include/fuse3 -lfuse3 -L/usr/lib/x86_64-linux-gnu
-OUTPUT_NAME = kubsh
 # Компилятор и флаги
 CXX = g++
-CXXFLAGS = -std=c++20 -Wall -Wextra 
-FUSE_FLAGS = -I/usr/include/fuse3 -lfuse3 -L/usr/lib/x86_64-linux-gnu
-TARGET = kubsh
+CXXFLAGS = -std=c++20 -Wall -Wextra
+FUSE_FLAGS = -I/usr/include/fuse3 -lfuse3
 
+# Настройки приложения
+APP_NAME = kubsh
 APP_VERSION = 1.0.0
-APP_PACKAGE = kubsh
-BUILD_FOLDER = build
-DEB_FOLDER = $(BUILD_FOLDER)/$(APP_PACKAGE)_$(APP_VERSION)_amd64
-DEB_OUTPUT = $(PWD)/kubsh.deb
-# Версия пакета
-VERSION = 1.0.0
-PACKAGE_NAME = kubsh
 BUILD_DIR = build
-DEB_DIR = $(BUILD_DIR)/$(PACKAGE_NAME)_$(VERSION)_amd64
-DEB_FILE := $(PWD)/kubsh.deb
+DEB_DIR = $(BUILD_DIR)/$(APP_NAME)_$(APP_VERSION)_amd64
+DEB_FILE = kubsh.deb
 
-SOURCE_FILES = kubsh.cpp vfs.cpp
-OBJECT_FILES = $(SOURCE_FILES:.cpp=.o)
 # Исходные файлы
 SRCS = kubsh.cpp vfs.cpp
 OBJS = $(SRCS:.cpp=.o)
 
-build: $(OUTPUT_NAME)
-# Основные цели
-all: $(TARGET)
+# Основная цель
+all: $(APP_NAME)
 
-$(OUTPUT_NAME): $(OBJECT_FILES)
-	$(COMPILER) $(COMPILE_FLAGS) -o $(OUTPUT_NAME) $(OBJECT_FILES) $(FUSE_CONFIG)
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(FUSE_FLAGS)
+# Сборка исполняемого файла
+$(APP_NAME): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $(APP_NAME) $(OBJS) $(FUSE_FLAGS)
 
+# Компиляция .cpp файлов
 %.o: %.cpp
-	$(COMPILER) $(COMPILE_FLAGS) $(FUSE_CONFIG) -c $< -o $@
 	$(CXX) $(CXXFLAGS) $(FUSE_FLAGS) -c $< -o $@
 
-execute: $(OUTPUT_NAME)
-	./$(OUTPUT_NAME)
 # Запуск шелла
-run: $(TARGET)
-	./$(TARGET)
+run: $(APP_NAME)
+	./$(APP_NAME)
 
-prepare-deb: $(TARGET)
+# Подготовка структуры для deb-пакета
+prepare-deb: $(APP_NAME)
 	@echo "Подготовка структуры для deb-пакета..."
-	@-rm -rf $(DEB_DIR) 2>/dev/null || true  # Полностью очищаем старую структуру
+	@# Полностью очищаем старую структуру с sudo (если нужно)
+	@sudo rm -rf $(DEB_DIR) 2>/dev/null || true
+	@rm -rf $(DEB_DIR) 2>/dev/null || true
 	@mkdir -p $(DEB_DIR)/DEBIAN
 	@mkdir -p $(DEB_DIR)/usr/local/bin
-	@cp $(TARGET) $(DEB_DIR)/usr/local/bin/
-	@chmod +x $(DEB_DIR)/usr/local/bin/$(TARGET)
+	@cp $(APP_NAME) $(DEB_DIR)/usr/local/bin/
+	@chmod +x $(DEB_DIR)/usr/local/bin/$(APP_NAME)
 	
 	@echo "Создание control файла..."
-	@echo "Package: $(PACKAGE_NAME)" > $(DEB_DIR)/DEBIAN/control
-	@echo "Version: $(VERSION)" >> $(DEB_DIR)/DEBIAN/control
+	@echo "Package: $(APP_NAME)" > $(DEB_DIR)/DEBIAN/control
+	@echo "Version: $(APP_VERSION)" >> $(DEB_DIR)/DEBIAN/control
 	@echo "Section: utils" >> $(DEB_DIR)/DEBIAN/control
 	@echo "Priority: optional" >> $(DEB_DIR)/DEBIAN/control
 	@echo "Architecture: amd64" >> $(DEB_DIR)/DEBIAN/control
@@ -63,32 +50,13 @@ prepare-deb: $(TARGET)
 	@echo "Description: Simple custom shell" >> $(DEB_DIR)/DEBIAN/control
 	@echo " A simple custom shell implementation for learning purposes." >> $(DEB_DIR)/DEBIAN/control
 
-deb-package: prepare-deb
-	@dpkg-deb --build $(DEB_FOLDER)
-	@mv $(BUILD_FOLDER)/$(APP_PACKAGE)_$(APP_VERSION)_amd64.deb $(DEB_OUTPUT)
-	@echo "Package ready: $(DEB_OUTPUT)"
 # Сборка deb-пакета
 deb: prepare-deb
 	@echo "Сборка deb-пакета..."
 	dpkg-deb --build $(DEB_DIR)
-	@mv $(BUILD_DIR)/$(PACKAGE_NAME)_$(VERSION)_amd64.deb $(DEB_FILE)
+	@mv $(BUILD_DIR)/$(APP_NAME)_$(APP_VERSION)_amd64.deb $(DEB_FILE)
 	@echo "Пакет создан: $(DEB_FILE)"
 
-install-app: deb-package
-	sudo dpkg -i $(DEB_OUTPUT)
-# Установка пакета (требует sudo)
-install: deb
-	sudo dpkg -i $(DEB_FILE)
-
-remove-app:
-	sudo dpkg -r $(APP_PACKAGE)
-# Удаление пакета
-uninstall:
-	sudo dpkg -r $(PACKAGE_NAME)
-
-container-test: deb-package
-	@docker run --rm \
-		-v $(DEB_OUTPUT):/mnt/kubsh.deb \
 # Тестирование в Docker контейнере
 test: deb
 	@echo "Запуск теста в Docker контейнере..."
@@ -99,28 +67,18 @@ test: deb
 		--security-opt apparmor:unconfined \
 		ghcr.io/xardb/kubshfuse:master 2>/dev/null || true
 
-cleanup:
-	rm -rf $(BUILD_FOLDER) $(OUTPUT_NAME) *.deb $(OBJECT_FILES)
 # Очистка
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET) *.deb $(OBJS)
+	rm -rf $(BUILD_DIR) $(APP_NAME) *.deb $(OBJS)
 
-clean-deb:
-	@echo "Очистка структуры DEB пакета..."
-	@-rm -rf $(DEB_FOLDER) $(DEB_DIR) 2>/dev/null || true
-	@echo "Структура DEB пакета очищена"
+# Установка пакета (требует sudo)
+install: deb
+	sudo dpkg -i $(DEB_FILE)
 
-show-help:
-	@echo "Available commands:"
-	@echo "  make build        - compile application"
-	@echo "  make deb-package  - create deb package"
-	@echo "  make install-app  - install package"
-	@echo "  make remove-app   - uninstall package"
-	@echo "  make cleanup      - clean project"
-	@echo "  make clean-deb    - clean deb structure (NEW)"
-	@echo "  make execute      - run shell"
-	@echo "  make container-test - test in Docker"
-	@echo "  make show-help    - display this help"
+# Удаление пакета
+uninstall:
+	sudo dpkg -r $(APP_NAME)
+
 # Показать справку
 help:
 	@echo "Доступные команды:"
@@ -129,10 +87,8 @@ help:
 	@echo "  make install  - установить пакет"
 	@echo "  make uninstall - удалить пакет"
 	@echo "  make clean    - очистить проект"
-	@echo "  make clean-deb - очистить структуру DEB (НОВОЕ)"
 	@echo "  make run      - запустить шелл"
 	@echo "  make test     - собрать и запустить тест в Docker"
 	@echo "  make help     - показать эту справку"
 
-.PHONY: build deb-package install-app remove-app cleanup show-help prepare-deb execute container-test
-.PHONY: all deb install uninstall clean help prepare-deb run test clean-deb
+.PHONY: all run prepare-deb deb install uninstall clean help test
