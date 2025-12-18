@@ -4,6 +4,13 @@
 #include <cstdlib>
 #include <algorithm>
 #include <cctype>
+#include <vector>
+
+// Для 8 задания
+#include <sys/wait.h> // waitpid
+#include <unistd.h> // fork, execvp, getpid
+#include <sstream> // для разбиения строки на части
+
 using namespace std;
 
 const string ECHO = "debug"; // "echo";
@@ -19,6 +26,7 @@ void help() {
     cout << "\\e <var> \t - show environment variable\n";
     cout << ECHO << " <text> \t - print text\n";
     cout << "Ctrl+D \t\t - exit\n";
+    cout << "<command> \t - execute external program\n"; 
 }
 
 // 1. Печатает введённую строку и выходит (выход в main)
@@ -84,6 +92,34 @@ void env(const string& var_name) {
     else cout << clean_var << "not found" << "\n";
 }
 
+// 8. Выполнение бинарника
+void execute_external_command(const string& cmd_line) {
+    pid_t pid = fork(); // новый процесс
+    if (pid == 0) { // если дочерний процесс
+        vector<string> tokens;
+        vector<char*> args;
+        string token;
+        istringstream iss(cmd_line);
+        while (iss >> token) {
+            tokens.push_back(token);
+        }
+        for (auto& t : tokens) {
+            args.push_back(const_cast<char*>(t.c_str()));
+        }
+        args.push_back(nullptr); // конец массива
+        execvp(args[0], args.data());
+        cout << "command not found: " << args[0] << "\n"; // если execvp не удался 
+        exit(1);  // завершаем дочерний процесс
+    } 
+    else if (pid > 0) { //  если родительский процесс
+        int status;
+        waitpid(pid, &status, 0);  // ждем завершения дочернего процесса
+    } 
+    else {
+        cerr << "Failed to create process\n";
+    }
+}
+
 // Обработка команды и выбор функции
 void process_command(const string& input) {
     if (input.empty()) return;
@@ -117,7 +153,8 @@ void process_command(const string& input) {
         env(args);
         return;
     }
-    cout << "Command is not found\n"; // 6.
+    execute_external_command(input); // 8.
+    // Убрала cout << "Command is not found\n"
 }
 
 int main() {
