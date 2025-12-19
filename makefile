@@ -17,11 +17,15 @@ OBJS = $(SRCS:.cpp=.o)
 # Основная цель
 all: $(APP_NAME)
 
-# Проверка зависимостей
+# Проверка зависимостей (только при локальной сборке)
 check-deps:
-	@echo "Checking build dependencies..."
-	@pkg-config --exists fuse3 || (echo "FUSE3 development files not found. Install libfuse3-dev"; exit 1)
-	@echo "Dependencies OK"
+	@if command -v pkg-config >/dev/null 2>&1; then \
+		echo "Checking build dependencies..."; \
+		pkg-config --exists fuse3 || (echo "FUSE3 development files not found. Install libfuse3-dev"; exit 1); \
+		echo "Dependencies OK"; \
+	else \
+		echo "pkg-config not found, skipping dependency check"; \
+	fi
 
 # Сборка исполняемого файла
 $(APP_NAME): $(OBJS)
@@ -76,7 +80,7 @@ prepare-deb: $(APP_NAME)
 	@chmod +x $(DEB_DIR)/DEBIAN/prerm
 
 # Сборка deb-пакета
-deb: check-deps prepare-deb
+deb: prepare-deb
 	@echo "Сборка deb-пакета..."
 	dpkg-deb --build $(DEB_DIR)
 	@mv $(BUILD_DIR)/$(APP_NAME)_$(APP_VERSION)_amd64.deb $(DEB_FILE)
