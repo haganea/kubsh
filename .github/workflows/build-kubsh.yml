@@ -12,6 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          libfuse3-dev \
+          pkg-config \
+          debhelper \
+          dpkg-dev
+
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
@@ -26,7 +36,7 @@ jobs:
         -v $PWD:/mnt \
         -w /mnt \
         ghcr.io/xardb/kubshfuse:master \
-        bash -c "make clean && make deb"  # ← ИЗМЕНЕНИЕ ЗДЕСЬ
+        bash -c "make clean && make deb"
 
     - name: Run tests in container
       run: |
