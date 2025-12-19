@@ -56,7 +56,7 @@ prepare-deb: $(APP_NAME)
 	@echo "Section: utils" >> $(DEB_DIR)/DEBIAN/control
 	@echo "Priority: optional" >> $(DEB_DIR)/DEBIAN/control
 	@echo "Architecture: amd64" >> $(DEB_DIR)/DEBIAN/control
-	@echo "Maintainer: Your Name <your.email@example.com>" >> $(DEB_DIR)/DEBIAN/control
+	@echo "Maintainer: haganea" >> $(DEB_DIR)/DEBIAN/control
 	@echo "Depends: libfuse3-3 | libfuse3-4 | libfuse3, libstdc++6 (>= 4.8), libc6 (>= 2.34)" >> $(DEB_DIR)/DEBIAN/control
 	@echo "Recommends: fuse3" >> $(DEB_DIR)/DEBIAN/control
 	@echo "Description: Simple custom shell" >> $(DEB_DIR)/DEBIAN/control
